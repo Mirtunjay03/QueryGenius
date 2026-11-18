@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>QueryGenius</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">AI-Powered Data Intelligence</p>
+                <h1>QueryGenius</h1>
+            </div>
+            <div class="account-actions">
+                <span>{{ current_user.email }}</span>
+                <form method="post" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="logout-button" type="submit">Sign out</button>
+                </form>
+                <div class="status-pill">Secure READ-ONLY mode</div>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="panel main-panel">
+                <h2>Ask a business question</h2>
+                <form id="query-form">
+                    <textarea id="question" name="question" rows="4" placeholder="Show me the top 10 products by total revenue in the last six months"></textarea>
+                    <div class="actions">
+                        <button type="submit">Generate SQL</button>
+                    </div>
+                </form>
+                <div id="error-box" class="error-box hidden"></div>
+                <div id="result-box" class="result-box hidden">
+                    <div class="result-kpis">
+                        <div>
+                            <span>Metric</span>
+                            <strong id="metric-name">-</strong>
+                        </div>
+                        <div>
+                            <span>Security</span>
+                            <strong id="security-status">-</strong>
+                        </div>
+                        <div>
+                            <span>Rows</span>
+                            <strong id="row-count">-</strong>
+                        </div>
+                    </div>
+
+                    <h3>Generated SQL</h3>
+                    <pre id="sql-output"></pre>
+
+                    <h3>Explainability</h3>
+                    <ul id="lineage-list"></ul>
+
+                    <h3>Results</h3>
+                    <table id="result-table">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside class="panel sidebar">
+                <div class="card">
+                    <h3>Semantic metrics</h3>
+                    <ul class="metric-list">
+                        {% for metric in metrics %}
+                            <li>{{ metric.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card history-box">
+                    <h3>Recent queries</h3>
+                    {% for item in history %}
+                        <div class="history-item">
+                            <strong>{{ item.question }}</strong>
+                            <small>{{ item.metric_name }} • {{ item.created_at }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
